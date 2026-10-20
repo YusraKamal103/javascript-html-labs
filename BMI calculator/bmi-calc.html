@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BMI Calculator</title>
+<style>
+:root {
+  --bg: #f4f6fb; --card: #ffffff; --text: #1c2233; --muted: #667085;
+  --border: #d9deea; --accent: #3b6cf6; --accent-text: #ffffff;
+  --under: #4aa3f0; --normal: #2fb67c; --over: #f0a43a; --obese: #e5534b;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12151f; --card: #1b2030; --text: #eef1f8; --muted: #9aa4ba;
+    --border: #2e3550; --accent: #6b92ff; --accent-text: #0e1220;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12151f; --card: #1b2030; --text: #eef1f8; --muted: #9aa4ba;
+  --border: #2e3550; --accent: #6b92ff; --accent-text: #0e1220;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh; display: flex; justify-content: center; padding: 24px 16px;
+}
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+  width: 100%; max-width: 460px; padding: 28px 24px; align-self: flex-start;
+  box-shadow: 0 8px 30px rgba(0,0,0,.08);
+}
+h1 { margin: 0 0 4px; font-size: 1.6rem; }
+.sub { margin: 0 0 20px; color: var(--muted); font-size: .95rem; }
+input + input { margin-top: 12px; }
+input {
+  width: 100%; padding: 12px 14px; font-size: 1rem; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--bg); color: var(--text);
+}
+input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.actions { display: flex; gap: 10px; margin-top: 22px; }
+.btn {
+  flex: 1; padding: 13px; border-radius: 10px; font-size: 1rem; font-weight: 700;
+  cursor: pointer; border: 1px solid var(--border);
+}
+.btn.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.btn.ghost { background: transparent; color: var(--text); }
+.error { color: var(--obese); font-size: .9rem; min-height: 1.2em; margin-top: 12px; }
+.result { display: none; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; }
+.result.show { display: block; }
+.bmi-value { font-size: 3.2rem; font-weight: 800; line-height: 1; }
+.category { display: inline-block; margin-top: 10px; padding: 6px 14px; border-radius: 999px; font-weight: 700; color: #fff; }
+.gauge { position: relative; margin: 26px 0 8px; height: 12px; border-radius: 6px; display: flex; overflow: visible; }
+.gauge span { height: 100%; }
+.gauge .g1 { background: var(--under); border-radius: 6px 0 0 6px; }
+.gauge .g2 { background: var(--normal); }
+.gauge .g3 { background: var(--over); }
+.gauge .g4 { background: var(--obese); border-radius: 0 6px 6px 0; }
+.marker {
+  position: absolute; top: -7px; width: 4px; height: 26px; background: var(--text);
+  border-radius: 2px; transform: translateX(-50%); transition: left .4s ease;
+}
+.scale { display: flex; justify-content: space-between; font-size: .75rem; color: var(--muted); }
+.tip { margin-top: 16px; font-size: .92rem; color: var(--muted); line-height: 1.5; }
+.note { margin-top: 18px; font-size: .75rem; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+<main class="card">
+  <h1>BMI Calculator</h1>
+  <p class="sub">Check your Body Mass Index in seconds.</p>
+
+  <input id="height" type="number" inputmode="decimal" min="0" step="any" placeholder="Height (cm)" aria-label="Height in centimeters">
+  <input id="weight" type="number" inputmode="decimal" min="0" step="any" placeholder="Weight (kg)" aria-label="Weight in kilograms">
+
+  <div class="actions">
+    <button id="calc" class="btn primary" type="button">Calculate</button>
+    <button id="reset" class="btn ghost" type="button">Reset</button>
+  </div>
+  <div id="error" class="error" role="alert"></div>
+
+  <section id="result" class="result" aria-live="polite">
+    <div class="bmi-value" id="bmiValue">0</div>
+    <div class="category" id="category"></div>
+    <div class="gauge">
+      <span class="g1" style="width:28.33%"></span>
+      <span class="g2" style="width:21.33%"></span>
+      <span class="g3" style="width:16.67%"></span>
+      <span class="g4" style="width:33.67%"></span>
+      <div class="marker" id="marker" style="left:0%"></div>
+    </div>
+    <div class="scale"><span>10</span><span>18.5</span><span>25</span><span>30</span><span>40+</span></div>
+    <p class="tip" id="tip"></p>
+  </section>
+
+  <p class="note">BMI is a general screening tool and doesn’t account for muscle, age or body composition. It isn’t medical advice.</p>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
